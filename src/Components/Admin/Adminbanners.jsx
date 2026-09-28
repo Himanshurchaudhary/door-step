@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 
 const API_BASE = import.meta.env.VITE_API_URL;
+const CDN      = import.meta.env.VITE_CLOUDINARY_BASE || "";
+const cdnUrl   = (publicId) => publicId ? `${CDN}/${publicId}` : "";
 
 // ─── Toast ───────────────────────────────────────────────────────────────────
 const Toast = ({ toasts }) => (
@@ -77,37 +79,37 @@ const ConfirmModal = ({ open, onConfirm, onCancel, message }) => {
 const BannerFormModal = ({ open, onClose, onSave, editData, loading }) => {
   const fileRef = useRef();
   const [form, setForm] = useState({
-    title: "", subtitle: "", image: "", link: "",
+    title: "", subtitle: "", link: "",
     position: "home_top", is_active: 1, sort_order: 0,
   });
-  const [preview, setPreview] = useState("");
-  const [dragOver, setDragOver] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [preview,   setPreview]   = useState("");
+  const [dragOver,  setDragOver]  = useState(false);
 
   useEffect(() => {
     if (editData) {
       setForm({
         title:      editData.title      || "",
         subtitle:   editData.subtitle   || "",
-        image:      editData.image      || "",
         link:       editData.link       || "",
         position:   editData.position   || "home_top",
         is_active:  editData.is_active  ?? 1,
         sort_order: editData.sort_order || 0,
       });
-      setPreview(editData.image ? `${API_BASE}${editData.image}` : "");
+      setPreview(editData.image ? cdnUrl(editData.image) : "");
+      setImageFile(null);
     } else {
-      setForm({ title: "", subtitle: "", image: "", link: "", position: "home_top", is_active: 1, sort_order: 0 });
+      setForm({ title: "", subtitle: "", link: "", position: "home_top", is_active: 1, sort_order: 0 });
       setPreview("");
+      setImageFile(null);
     }
   }, [editData, open]);
 
   const handleImage = (file) => {
     if (!file) return;
+    setImageFile(file);
     const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreview(e.target.result);
-      setForm(f => ({ ...f, image: e.target.result }));
-    };
+    reader.onload = (e) => setPreview(e.target.result);
     reader.readAsDataURL(file);
   };
 
@@ -116,6 +118,8 @@ const BannerFormModal = ({ open, onClose, onSave, editData, loading }) => {
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith("image/")) handleImage(file);
   };
+
+  const canSave = editData ? true : !!imageFile;
 
   if (!open) return null;
 
@@ -169,7 +173,9 @@ const BannerFormModal = ({ open, onClose, onSave, editData, loading }) => {
 
           {/* Image Upload */}
           <div style={{ marginBottom: 20 }}>
-            <label style={labelStyle}>Banner Image *</label>
+            <label style={labelStyle}>
+              Banner Image {editData ? "(change karna ho to select karo)" : "*"}
+            </label>
             <div
               onClick={() => fileRef.current.click()}
               onDragOver={e => { e.preventDefault(); setDragOver(true); }}
@@ -322,15 +328,16 @@ const BannerFormModal = ({ open, onClose, onSave, editData, loading }) => {
               cursor: "pointer", fontFamily: "'Plus Jakarta Sans', sans-serif",
             }}>Cancel</button>
             <button
-              onClick={() => onSave(form)}
-              disabled={loading || !form.image}
+              onClick={() => onSave(form, imageFile)}
+              disabled={loading || !canSave}
               style={{
                 flex: 2, padding: "12px", borderRadius: 10, border: "none",
-                background: loading || !form.image
+                background: loading || !canSave
                   ? "#f1f5f9"
                   : "linear-gradient(135deg,#ec4899,#a855f7)",
-                color: loading || !form.image ? "#94a3b8" : "#fff",
-                fontWeight: 600, fontSize: 14, cursor: loading || !form.image ? "not-allowed" : "pointer",
+                color: loading || !canSave ? "#94a3b8" : "#fff",
+                fontWeight: 600, fontSize: 14,
+                cursor: loading || !canSave ? "not-allowed" : "pointer",
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 transition: "all 0.2s",
               }}
@@ -346,22 +353,17 @@ const BannerFormModal = ({ open, onClose, onSave, editData, loading }) => {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AdminBanners() {
-  const [banners, setBanners]         = useState([]);
+  const [banners,     setBanners]     = useState([]);
   const [pageLoading, setPageLoading] = useState(true);
-  const [formOpen, setFormOpen]       = useState(false);
-  const [editData, setEditData]       = useState(null);
-  const [saving, setSaving]           = useState(false);
-  const [deleteId, setDeleteId]       = useState(null);
-  const [toasts, setToasts]           = useState([]);
-  const [search, setSearch]           = useState("");
-  const [filterPos, setFilterPos]     = useState("all");
+  const [formOpen,    setFormOpen]    = useState(false);
+  const [editData,    setEditData]    = useState(null);
+  const [saving,      setSaving]      = useState(false);
+  const [deleteId,    setDeleteId]    = useState(null);
+  const [toasts,      setToasts]      = useState([]);
+  const [search,      setSearch]      = useState("");
+  const [filterPos,   setFilterPos]   = useState("all");
 
   const token = localStorage.getItem("al_token");
-
-  const authHeaders = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  };
 
   // ── Toast ──────────────────────────────────────────────────────────────────
   const showToast = (message, type = "success") => {
@@ -374,7 +376,9 @@ export default function AdminBanners() {
   const fetchBanners = async () => {
     try {
       setPageLoading(true);
-      const res  = await fetch(`${API_BASE}/api/banners`, { headers: authHeaders });
+      const res  = await fetch(`${API_BASE}/api/banners`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
       if (data.success) setBanners(data.data);
     } catch {
@@ -386,16 +390,29 @@ export default function AdminBanners() {
 
   useEffect(() => { fetchBanners(); }, []);
 
-  // ── Save (create / update) ────────────────────────────────────────────────
-  const handleSave = async (form) => {
+  // ── Save — FormData ────────────────────────────────────────────────────────
+  const handleSave = async (form, imageFile) => {
     setSaving(true);
     try {
+      const fd = new FormData();
+      fd.append("title",      form.title);
+      fd.append("subtitle",   form.subtitle);
+      fd.append("link",       form.link);
+      fd.append("position",   form.position);
+      fd.append("is_active",  form.is_active);
+      fd.append("sort_order", form.sort_order);
+      if (imageFile) fd.append("image", imageFile);
+
       const url    = editData
         ? `${API_BASE}/api/banners/${editData.id}`
         : `${API_BASE}/api/banners`;
       const method = editData ? "PUT" : "POST";
 
-      const res  = await fetch(url, { method, headers: authHeaders, body: JSON.stringify(form) });
+      const res  = await fetch(url, {
+        method,
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      });
       const data = await res.json();
 
       if (data.success) {
@@ -417,7 +434,8 @@ export default function AdminBanners() {
   const handleDelete = async () => {
     try {
       const res  = await fetch(`${API_BASE}/api/banners/${deleteId}`, {
-        method: "DELETE", headers: authHeaders,
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (data.success) {
@@ -437,7 +455,8 @@ export default function AdminBanners() {
   const handleToggle = async (id) => {
     try {
       const res  = await fetch(`${API_BASE}/api/banners/${id}/toggle`, {
-        method: "PATCH", headers: authHeaders,
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (data.success) {
@@ -542,7 +561,6 @@ export default function AdminBanners() {
         <div className="filter-bar" style={{
           display: "flex", gap: 10, marginBottom: 24, alignItems: "center",
         }}>
-          {/* Search */}
           <div style={{ position: "relative", flex: 1, maxWidth: 300 }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
               stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -553,14 +571,9 @@ export default function AdminBanners() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search banners…"
-              style={{
-                ...inputStyle, paddingLeft: 36, paddingRight: 14,
-                background: "#fff", margin: 0,
-              }}
+              style={{ ...inputStyle, paddingLeft: 36, paddingRight: 14, background: "#fff", margin: 0 }}
             />
           </div>
-
-          {/* Position filter */}
           {positions.map(p => (
             <button key={p}
               onClick={() => setFilterPos(p)}
@@ -570,8 +583,7 @@ export default function AdminBanners() {
                 background: filterPos === p ? "rgba(236,72,153,0.06)" : "#fff",
                 color: filterPos === p ? "#ec4899" : "#64748b",
                 fontSize: 12, fontWeight: 600, cursor: "pointer",
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                whiteSpace: "nowrap",
+                fontFamily: "'Plus Jakarta Sans', sans-serif", whiteSpace: "nowrap",
               }}
             >{posLabel(p)}</button>
           ))}
@@ -588,7 +600,6 @@ export default function AdminBanners() {
             <p style={{ color: "#94a3b8", fontSize: 13 }}>Loading banners…</p>
           </div>
         ) : filtered.length === 0 ? (
-          // ── Empty State ──
           <div style={{
             textAlign: "center", padding: "80px 24px",
             background: "#fff", borderRadius: 16, border: "1px solid #f1f5f9",
@@ -615,19 +626,15 @@ export default function AdminBanners() {
                 : "Add your first banner for the app"}
             </p>
             {!search && filterPos === "all" && (
-              <button
-                onClick={() => setFormOpen(true)}
-                style={{
-                  padding: "10px 22px", borderRadius: 10, border: "none",
-                  background: "linear-gradient(135deg,#ec4899,#a855f7)",
-                  color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer",
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                }}
-              >Add First Banner</button>
+              <button onClick={() => setFormOpen(true)} style={{
+                padding: "10px 22px", borderRadius: 10, border: "none",
+                background: "linear-gradient(135deg,#ec4899,#a855f7)",
+                color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer",
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+              }}>Add First Banner</button>
             )}
           </div>
         ) : (
-          // ── Banner Grid ──
           <div className="banners-grid" style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
@@ -638,14 +645,13 @@ export default function AdminBanners() {
                 background: "#fff", borderRadius: 14,
                 border: "1px solid #f1f5f9",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                overflow: "hidden",
-                animation: "fadeIn 0.25s ease",
+                overflow: "hidden", animation: "fadeIn 0.25s ease",
               }}>
                 {/* Image */}
                 <div style={{ position: "relative", height: 160, background: "#f8fafc" }}>
                   {banner.image ? (
                     <img
-                      src={`${API_BASE}${banner.image}`}
+                      src={cdnUrl(banner.image)}
                       alt={banner.title || "banner"}
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       onError={e => { e.target.style.display = "none"; }}
@@ -663,22 +669,16 @@ export default function AdminBanners() {
                       </svg>
                     </div>
                   )}
-
-                  {/* Position badge */}
                   <span style={{
                     position: "absolute", top: 10, left: 10,
                     background: "rgba(0,0,0,0.55)", color: "#fff",
                     fontSize: 10, fontWeight: 600, padding: "3px 8px",
-                    borderRadius: 6, backdropFilter: "blur(4px)",
-                    letterSpacing: 0.3,
+                    borderRadius: 6, backdropFilter: "blur(4px)", letterSpacing: 0.3,
                   }}>{posLabel(banner.position)}</span>
-
-                  {/* Sort order */}
                   <span style={{
                     position: "absolute", top: 10, right: 10,
                     background: "rgba(255,255,255,0.9)", color: "#64748b",
-                    fontSize: 10, fontWeight: 700, padding: "3px 8px",
-                    borderRadius: 6,
+                    fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 6,
                   }}>#{banner.sort_order}</span>
                 </div>
 
@@ -689,14 +689,12 @@ export default function AdminBanners() {
                     marginBottom: 4, whiteSpace: "nowrap",
                     overflow: "hidden", textOverflow: "ellipsis",
                   }}>{banner.title || <span style={{ color: "#cbd5e1" }}>No title</span>}</p>
-
                   {banner.subtitle && (
                     <p style={{
                       fontSize: 12, color: "#94a3b8", marginBottom: 4,
                       whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                     }}>{banner.subtitle}</p>
                   )}
-
                   {banner.link && (
                     <p style={{
                       fontSize: 11, color: "#a855f7", marginBottom: 0,
@@ -711,7 +709,6 @@ export default function AdminBanners() {
                   display: "flex", alignItems: "center", justifyContent: "space-between",
                   borderTop: "1px solid #f8fafc",
                 }}>
-                  {/* Toggle */}
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <div
                       onClick={() => handleToggle(banner.id)}
@@ -734,8 +731,6 @@ export default function AdminBanners() {
                       color: banner.is_active ? "#ec4899" : "#94a3b8",
                     }}>{banner.is_active ? "Active" : "Inactive"}</span>
                   </div>
-
-                  {/* Edit + Delete */}
                   <div style={{ display: "flex", gap: 6 }}>
                     <button className="action-btn"
                       onClick={() => { setEditData(banner); setFormOpen(true); }}
