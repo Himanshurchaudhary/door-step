@@ -224,13 +224,13 @@ export default function Footer() {
                                 </div>
                             </div>
                             <p className="footer-desc">
-                                Professional car wash & detailing, delivered right to your doorstep. Book in minutes, relax while we handle the rest.
+                                Professional Car Wash & Detailing in Ahmedabad & Gandhinagar. We provide convenient doorstep car, bike and bicycle cleaning services at your home, office, or preferred location. Book online for reliable vehicle wash and detailing services at your doorstep.
                             </p>
                             <div className="footer-socials">
-                                <a href="#" className="footer-social-btn" aria-label="Facebook"><FacebookIcon /></a>
-                                <a href="#" className="footer-social-btn" aria-label="Instagram"><InstagramIcon /></a>
-                                <a href="#" className="footer-social-btn" aria-label="Twitter"><TwitterIcon /></a>
-                                <a href="#" className="footer-social-btn" aria-label="Youtube"><YoutubeIcon /></a>
+                                <a href="https://www.facebook.com/share/1JneWGeHFm/?mibextid=wwXIfr" className="footer-social-btn" aria-label="Facebook"><FacebookIcon /></a>
+                                <a href="https://www.instagram.com/doorstepcarwash58?stkn=OXQyamJ5bmRlcXhz&utm_source=qr" className="footer-social-btn" aria-label="Instagram"><InstagramIcon /></a>
+                                {/* <a href="#" className="footer-social-btn" aria-label="Twitter"><TwitterIcon /></a>
+                                <a href="#" className="footer-social-btn" aria-label="Youtube"><YoutubeIcon /></a> */}
                             </div>
                         </div>
 
@@ -275,11 +275,12 @@ export default function Footer() {
                                     <div className="footer-contact-icon"><MapPin size={15} /></div>
                                     <div className="footer-contact-text">
                                         <strong>Office Address</strong>
-                                        123, Business Street, Patna, Bihar – 800001, India
+                                        D/705 7th Floor Om Shanti Gold Plus, Beside Om Shanti Nagar 2,lambh Vatva Road,Narol , Ahmedabad, Gujarat ,382405
+
                                         <br />
                                         <a
                                             className="footer-map-link"
-                                            href="https://www.google.com/maps/search/?api=1&query=Patna+Bihar"
+                                            href="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3674.099044609349!2d72.5964637!3d22.9465792!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e8f08c56c63f3%3A0xacb568d8193b3518!2sDoor%20Step%20Car%20Wash!5e0!3m2!1sen!2sin!4v1790577836052!5m2!1sen!2sin"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >
@@ -292,7 +293,7 @@ export default function Footer() {
                                     <div className="footer-contact-icon"><Phone size={15} /></div>
                                     <div className="footer-contact-text">
                                         <strong>Call Us</strong>
-                                        <a href="tel:+911234567890">+91 12345 67890</a>
+                                        <a href="tel:+919898249789">+91 9898249789</a>
                                     </div>
                                 </div>
 
@@ -300,7 +301,7 @@ export default function Footer() {
                                     <div className="footer-contact-icon"><Mail size={15} /></div>
                                     <div className="footer-contact-text">
                                         <strong>Email</strong>
-                                        <a href="mailto:support@doorstepcarwash.com">support@doorstepcarwash.com</a>
+                                        <a href="mailto:doorstepcarwash99@gmail.com">doorstepcarwash99@gmail.com</a>
                                     </div>
                                 </div>
 
@@ -333,3 +334,6 @@ export default function Footer() {
         </>
     );
 }
+
+
+
