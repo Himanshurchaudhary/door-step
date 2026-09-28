@@ -33,6 +33,7 @@ const styles = `
     position: sticky;
     top: 0;
     z-index: 100;
+    overflow: visible;
     transition: height 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
   }
   .navbar.scrolled {
@@ -85,16 +86,21 @@ const styles = `
   .navbar-right { display: flex; align-items: center; gap: 10px; }
 
   .btn-book {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: #1a2e6e; color: #ffffff; border: none;
-    border-radius: 28px; padding: 10px 20px; font-size: 0.88rem; font-weight: 700;
-    cursor: pointer; text-decoration: none; white-space: nowrap;
-    transition: background 0.2s, transform 0.15s;
-    opacity: 0;
-    animation: linkFadeDown 0.45s 0.42s cubic-bezier(0.22,1,0.36,1) forwards,
-               pulseGlow 3s ease-in-out 1.5s infinite;
-  }
-  .btn-book:hover { background: #1a8cff; transform: translateY(-2px) scale(1.03); animation: none; }
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #1a2e6e; color: #ffffff; border: none;
+  border-radius: 28px; padding: 10px 20px; font-size: 0.88rem; font-weight: 700;
+  cursor: pointer; text-decoration: none; white-space: nowrap;
+  transition: background 0.2s, transform 0.15s, color 0.2s, opacity 0.2s;
+  animation: linkFadeDown 0.45s 0.42s cubic-bezier(0.22,1,0.36,1) forwards,
+             pulseGlow 3s ease-in-out 1.5s infinite;
+}
+.btn-book:hover {
+  background: #1a8cff;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  transform: translateY(-2px) scale(1.03);
+  animation: pulseGlow 0s;
+}
   .btn-book:active { transform: translateY(0) scale(0.98); }
 
   .btn-track {
