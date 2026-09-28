@@ -1,20 +1,20 @@
 const multer          = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary      = require('../config/cloudinary'); // your existing cloudinary config
+const cloudinary      = require('../config/cloudinary');
 
-// Store directly to Cloudinary — no local disk
+// ── Packages (kuch nahi badla) ────────────────────────────────────────────────
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder:         'seva-mart/packages',
+    folder:          'seva-mart/packages',
     allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 1200, height: 900, crop: 'limit', quality: 'auto' }],
+    transformation:  [{ width: 1200, height: 900, crop: 'limit', quality: 'auto' }],
   },
 });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
     if (allowed.includes(file.mimetype)) cb(null, true);
@@ -22,4 +22,25 @@ const upload = multer({
   },
 });
 
-module.exports = upload;
+// ── Banners (sirf ye naya add kiya) ──────────────────────────────────────────
+const bannerStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder:          'seva-mart/banners',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    transformation:  [{ width: 1920, height: 600, crop: 'limit', quality: 'auto' }],
+  },
+});
+
+const uploadBanner = multer({
+  storage: bannerStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (allowed.includes(file.mimetype)) cb(null, true);
+    else cb(new Error('Only JPG, PNG, and WebP images are allowed'));
+  },
+});
+
+// ── Export (ye line badli — dono export kiye) ─────────────────────────────────
+module.exports = { upload, uploadBanner };

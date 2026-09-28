@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 
 const API_BASE = import.meta.env.VITE_API_URL;
+const CDN    = import.meta.env.VITE_CLOUDINARY_BASE || "";
+const cdnUrl = (publicId) => publicId ? `${CDN}/${publicId}` : "";
 
 const WhatsAppIcon = ({ size = 20 }) => (
   <svg
@@ -116,8 +118,8 @@ export default function GaadiGlowBanner() {
   if (loading) return <BannerSkeleton />;
 
   const banner  = banners[currentBannerIdx] || null;
-  const bgImage = banner?.image ? `${API_BASE}${banner.image}` : "/gaadiglow-banner.png";
-  const ctaHref = banner?.link  || "https://wa.me/919999999999";
+  const bgImage = banner?.image ? cdnUrl(banner.image) : "/gaadiglow-banner.png";
+  const ctaHref = banner?.link  || "https://wa.me/919898249789";
 
   return (
     <>
@@ -391,7 +393,7 @@ export default function GaadiGlowBanner() {
 
         {/* Floating WhatsApp button */}
         <a
-          href="https://wa.me/919999999999"
+          href="https://wa.me/919898249789"
           target="_blank"
           rel="noopener noreferrer"
           className="gg-float-wa"

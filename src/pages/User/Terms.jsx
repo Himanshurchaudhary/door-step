@@ -639,11 +639,11 @@ export default function TermsAndConditions() {
               support team is happy to help.
             </p>
             <div className="tc-contact-links">
-              <a href="mailto:support@doorstepcarwash.com" className="tc-contact-link">
-                <Mail size={15} /> support@doorstepcarwash.com
+              <a href="mailto:doorstepcarwash99@gmail.com" className="tc-contact-link">
+                <Mail size={15} /> doorstepcarwash99@gmail.com
               </a>
-              <a href="tel:+911234567890" className="tc-contact-link">
-                <Phone size={15} /> +91 12345 67890
+              <a href="tel:+919898249789" className="tc-contact-link">
+                <Phone size={15} /> +91 9898249789
               </a>
             </div>
           </div>

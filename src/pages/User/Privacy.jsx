@@ -640,11 +640,11 @@ export default function PrivacyPolicy() {
               your personal data, reach out to us anytime.
             </p>
             <div className="pp-contact-links">
-              <a href="mailto:support@doorstepcarwash.com" className="pp-contact-link">
-                <Mail size={15} /> support@doorstepcarwash.com
+              <a href="mailto:doorstepcarwash99@gmail.com" className="pp-contact-link">
+                <Mail size={15} /> doorstepcarwash99@gmail.com
               </a>
               <a href="tel:+911234567890" className="pp-contact-link">
-                <Phone size={15} /> +91 12345 67890
+                <Phone size={15} /> +91 9898249789
               </a>
             </div>
           </div>

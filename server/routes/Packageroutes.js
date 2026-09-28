@@ -14,7 +14,7 @@ const {
 } = require('../Controllers/Packagecontroller');
 
 const { protect, isAdmin } = require('../middleware/authMiddleware');
-const upload               = require('../middleware/upload');
+const { upload  }             = require('../middleware/upload');
 
 // ── Public ────────────────────────────────────────────────────────────────────
 router.get('/active', getActivePackages);

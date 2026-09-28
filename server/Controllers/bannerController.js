@@ -1,39 +1,5 @@
-const Banner = require('../models/Banner');
-const fs     = require('fs');
-const path   = require('path');
-
-// ── Helper: Base64 image save karo disk pe ───────────────────────────────────
-const saveBase64Image = (base64String, folder = 'banners') => {
-  try {
-    // "data:image/png;base64,xxxx" → split karo
-    const matches = base64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-    if (!matches) throw new Error('Invalid base64 string');
-
-    const ext      = matches[1].split('/')[1];           // png/jpg/webp
-    const data     = matches[2];
-    const fileName = `${folder}_${Date.now()}.${ext}`;
-    const uploadDir = path.join(__dirname, '../uploads', folder);
-
-    // Folder exist nahi hai to banao
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    fs.writeFileSync(path.join(uploadDir, fileName), data, 'base64');
-    return `/uploads/${folder}/${fileName}`;             // public URL
-  } catch (err) {
-    throw new Error('Image save failed: ' + err.message);
-  }
-};
-
-// ── Delete old image from disk ───────────────────────────────────────────────
-const deleteOldImage = (imagePath) => {
-  try {
-    if (!imagePath) return;
-    const fullPath = path.join(__dirname, '..', imagePath);
-    if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
-  } catch (_) {}
-};
+const Banner     = require('../models/Banner');
+const cloudinary = require('../config/cloudinary');
 
 // ── GET /api/banners — all banners (admin) ───────────────────────────────────
 exports.getAllBanners = async (req, res) => {
@@ -59,9 +25,7 @@ exports.getBannersByPosition = async (req, res) => {
 exports.getBannerById = async (req, res) => {
   try {
     const banner = await Banner.getById(req.params.id);
-    if (!banner) {
-      return res.status(404).json({ success: false, message: 'Banner not found' });
-    }
+    if (!banner) return res.status(404).json({ success: false, message: 'Banner not found' });
     res.json({ success: true, data: banner });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -71,21 +35,15 @@ exports.getBannerById = async (req, res) => {
 // ── POST /api/banners — create ───────────────────────────────────────────────
 exports.createBanner = async (req, res) => {
   try {
-    const { title, subtitle, image, link, position, is_active, sort_order } = req.body;
-
-    if (!image) {
+    if (!req.file) {
       return res.status(400).json({ success: false, message: 'Image is required' });
     }
 
-    // Base64 hai to save karo, warna direct URL use karo
-    let imagePath = image;
-    if (image.startsWith('data:')) {
-      imagePath = saveBase64Image(image, 'banners');
-    }
+    const { title, subtitle, link, position, is_active, sort_order } = req.body;
 
     const id = await Banner.create({
       title, subtitle, link, position, is_active, sort_order,
-      image: imagePath,
+      image: req.file.filename,
     });
 
     const banner = await Banner.getById(id);
@@ -101,21 +59,19 @@ exports.createBanner = async (req, res) => {
 exports.updateBanner = async (req, res) => {
   try {
     const existing = await Banner.getById(req.params.id);
-    if (!existing) {
-      return res.status(404).json({ success: false, message: 'Banner not found' });
-    }
+    if (!existing) return res.status(404).json({ success: false, message: 'Banner not found' });
 
     const updateData = { ...req.body };
 
-    // Nai image aayi hai to purani delete karo
-    if (updateData.image && updateData.image.startsWith('data:')) {
-      deleteOldImage(existing.image);
-      updateData.image = saveBase64Image(updateData.image, 'banners');
+    if (req.file) {
+      if (existing.image) {
+        await cloudinary.uploader.destroy(existing.image).catch(() => {});
+      }
+      updateData.image = req.file.filename;
     }
 
     await Banner.update(req.params.id, updateData);
     const updated = await Banner.getById(req.params.id);
-
     res.json({ success: true, message: 'Banner updated', data: updated });
 
   } catch (err) {
@@ -128,13 +84,13 @@ exports.updateBanner = async (req, res) => {
 exports.deleteBanner = async (req, res) => {
   try {
     const existing = await Banner.getById(req.params.id);
-    if (!existing) {
-      return res.status(404).json({ success: false, message: 'Banner not found' });
+    if (!existing) return res.status(404).json({ success: false, message: 'Banner not found' });
+
+    if (existing.image) {
+      await cloudinary.uploader.destroy(existing.image).catch(() => {});
     }
 
-    deleteOldImage(existing.image);
     await Banner.delete(req.params.id);
-
     res.json({ success: true, message: 'Banner deleted' });
 
   } catch (err) {
@@ -146,17 +102,14 @@ exports.deleteBanner = async (req, res) => {
 exports.toggleBanner = async (req, res) => {
   try {
     const existing = await Banner.getById(req.params.id);
-    if (!existing) {
-      return res.status(404).json({ success: false, message: 'Banner not found' });
-    }
+    if (!existing) return res.status(404).json({ success: false, message: 'Banner not found' });
 
     const newStatus = await Banner.toggleStatus(req.params.id);
     res.json({
-      success: true,
-      message: newStatus ? 'Banner activated' : 'Banner deactivated',
+      success:   true,
+      message:   newStatus ? 'Banner activated' : 'Banner deactivated',
       is_active: newStatus,
     });
-
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
