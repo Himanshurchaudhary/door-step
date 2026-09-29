@@ -3,6 +3,7 @@ const ServiceCityModel = require("../models/serviceCity.model");
 const CarTypeModel     = require("../models/carType.model");
 const AddonModel       = require("../models/addon.model");
 const PackageModel     = require("../models/Package");
+const { sendBookingAlert } = require("../utils/telegram");   // ← ye nayi line
 
 const VALID_STATUSES = ["pending", "confirmed", "in_progress", "completed", "cancelled"];
 
@@ -105,6 +106,24 @@ exports.create = async (req, res) => {
       status:         "pending",
       notes:          notes ? notes.trim() : null,
     });
+
+     sendBookingAlert({
+      customerName:   customerName.trim(),
+      customerNumber: customerNumber.trim(),
+      email:          email ? email.trim() : null,
+      cityName:       city.name,
+      addressType,
+      fullAddress:    addressType === "full_address" ? fullAddress.trim() : null,
+      latitude:       addressType === "current_location" ? Number(latitude) : null,
+      longitude:      addressType === "current_location" ? Number(longitude) : null,
+      packageName:    selectedPackage ? selectedPackage.name : null,
+      carTypeName:    carType.name,
+      addons:         selectedAddons,
+      bookingDate,
+      bookingTime,
+      notes:          notes ? notes.trim() : null,
+      totalPrice,
+    }).catch((e) => console.error("Telegram alert error:", e));
 
     res.status(201).json({ success: true, data: booking, message: "Booking created successfully" });
   } catch (err) {
