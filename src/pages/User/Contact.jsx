@@ -396,11 +396,11 @@ export default function ContactPage() {
                 <div className="cu-info-icon"><MapPin size={16} /></div>
                 <div className="cu-info-text">
                   <strong>Office Address</strong>
-                  <span>123, Business Street, Patna, Bihar – 800001, India</span>
+                  <span>D/705 7th Floor Om Shanti Gold Plus, Beside Om Shanti Nagar 2,lambh Vatva Road,Narol , Ahmedabad, Gujarat ,382405</span>
                   <br />
                   <a
                     className="cu-map-link"
-                    href="https://www.google.com/maps/search/?api=1&query=Patna+Bihar"
+                    href="https://maps.google.com/?q=Door+Step+Car+Wash,Narol,Ahmedabad,Gujarat,382405"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -413,7 +413,7 @@ export default function ContactPage() {
                 <div className="cu-info-icon"><Phone size={16} /></div>
                 <div className="cu-info-text">
                   <strong>Call Us</strong>
-                  <a href="tel:+911234567890">+91 12345 67890</a>
+                  <a href="tel:+919898249789">+91 9898249789</a>
                 </div>
               </div>
 
@@ -421,7 +421,7 @@ export default function ContactPage() {
                 <div className="cu-info-icon"><Mail size={16} /></div>
                 <div className="cu-info-text">
                   <strong>Email</strong>
-                  <a href="mailto:support@doorstepcarwash.com">support@doorstepcarwash.com</a>
+                  <a href="mailto:doorstepcarwash99@gmail.com">doorstepcarwash99@gmail.com</a>
                 </div>
               </div>
 
