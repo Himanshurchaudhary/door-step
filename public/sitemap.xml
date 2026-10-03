@@ -3,9 +3,23 @@
 
   <url>
     <loc>https://doorsstep.in/</loc>
-    <lastmod>2026-09-28</lastmod>
+    <lastmod>2026-10-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://doorsstep.in/car-wash-in-ahmedabad</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <url>
+    <loc>https://doorsstep.in/car-wash-in-gandhinagar</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
   </url>
 
   <url>
@@ -41,19 +55,6 @@
     <lastmod>2026-09-28</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
-  </url>
-
-  <url>
-    <loc>https://doorsstep.in/user/portal</loc>
-    <lastmod>2026-09-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://doorsstep.in/partner/portal</loc>
-    <lastmod>2026-09-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
   </url>
 
 </urlset>

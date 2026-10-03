@@ -24,6 +24,8 @@ import About from "./pages/User/About";
 import TermsAndConditions from "./pages/User/Terms";
 import PrivacyPolicy from "./pages/User/Privacy";
 import ContactPage from "./pages/User/Contact";
+import CarWashAhmedabad from "./pages/User/Carwashahmedabad"
+import CarWashGandhinagar from "./pages/User/Carwashgandhinagar"
 
 
 // ─────────────────────────────────────────────
@@ -81,6 +83,8 @@ function App() {
         <Route path="/term" element={<TermsAndConditions />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/car-wash-in-ahmedabad" element={<CarWashAhmedabad />} />
+        <Route path="/car-wash-in-gandhinagar" element={<CarWashGandhinagar />} />
 
 
 

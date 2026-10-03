@@ -249,6 +249,8 @@ export default function Footer() {
                         <div>
                             <h4 className="footer-heading">Valuable Link</h4>
                             <ul className="footer-links">
+                                <li><a href="/car-wash-in-ahmedabad">Car Wash in Ahmedabad</a></li>
+                                <li><a href="/car-wash-in-gandhinagar">Car Wash in Gandhinagar</a></li>
                                 <li><a href="/packages">Packages</a></li>
                                 <li><a href="/about">About</a></li>
                                 <li><a href="/term">Terms & Conditions</a></li>
