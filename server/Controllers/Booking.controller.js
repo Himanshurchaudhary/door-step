@@ -3,9 +3,19 @@ const ServiceCityModel = require("../models/serviceCity.model");
 const CarTypeModel     = require("../models/carType.model");
 const AddonModel       = require("../models/addon.model");
 const PackageModel     = require("../models/Package");
-const { sendBookingAlert } = require("../utils/telegram");   // ← ye nayi line
+const { sendBookingAlert } = require("../utils/telegram");
 
 const VALID_STATUSES = ["pending", "confirmed", "in_progress", "completed", "cancelled"];
+
+// ── Allowed time slots (frontend ke TIME_SLOTS se same rakhna) ──
+const ALLOWED_SLOTS = [
+  "09 AM - 11 AM",
+  "11 AM - 01 PM",
+  "01 PM - 03 PM",
+  "03 PM - 05 PM",
+  "05 PM - 07 PM",
+  "07 PM - 09 PM",
+];
 
 // ── Public ────────────────────────────────────────────────────────────────────
 
@@ -51,6 +61,10 @@ exports.create = async (req, res) => {
 
     if (!bookingDate || !bookingTime)
       return res.status(400).json({ success: false, message: "Booking date & time are required" });
+
+    // ── Time slot validation ──
+    if (!ALLOWED_SLOTS.includes(bookingTime))
+      return res.status(400).json({ success: false, message: "Invalid time slot selected" });
 
     const city = await ServiceCityModel.findById(cityId);
     if (!city || !city.isActive)
@@ -107,7 +121,7 @@ exports.create = async (req, res) => {
       notes:          notes ? notes.trim() : null,
     });
 
-     sendBookingAlert({
+    sendBookingAlert({
       customerName:   customerName.trim(),
       customerNumber: customerNumber.trim(),
       email:          email ? email.trim() : null,

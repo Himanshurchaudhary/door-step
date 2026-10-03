@@ -19,7 +19,7 @@ const shape = (row) => ({
   carTypeId:       row.car_type_id,
   carTypeName:     row.car_type_name,
   bookingDate:     row.booking_date,
-  bookingTime:     row.booking_time,
+  bookingTime:     row.booking_time,              // ab slot string: "09 AM - 11 AM"
   addons:          row.addons ? (typeof row.addons === "string" ? JSON.parse(row.addons) : row.addons) : [],
   totalPrice:      parseFloat(row.total_price),
   status:          row.status,
@@ -51,7 +51,7 @@ const BookingModel = {
         car_type_id      INT           NULL,
         car_type_name    VARCHAR(150)  NULL,
         booking_date     DATE          NOT NULL,
-        booking_time     VARCHAR(10)   NOT NULL,
+        booking_time     VARCHAR(30)   NOT NULL,
         addons           JSON          NULL,
         total_price      DECIMAL(10,2) NOT NULL DEFAULT 0,
         status           ENUM('pending','confirmed','in_progress','completed','cancelled') NOT NULL DEFAULT 'pending',
@@ -87,6 +87,10 @@ await addColumnIfMissing(
   "partner_name",
   "partner_name VARCHAR(150) NULL AFTER partner_id"
 );
+
+    // ── migration: booking_time ko time-slot string ("09 AM - 11 AM") ke liye
+    //    VARCHAR(10) -> VARCHAR(30) karo. Dobara chalane pe bhi safe hai.
+    await pool.query(`ALTER TABLE bookings MODIFY booking_time VARCHAR(30) NOT NULL`);
   },
 
   /** Create a booking (public, from website) */

@@ -24,6 +24,29 @@ import {
 
 const API_BASE = `${import.meta.env.VITE_API_URL}/api`;
 
+// ── Time slots (value = jo DB mein save hoga, startHour = 24h format) ──
+const TIME_SLOTS = [
+  { value: "09 AM - 11 AM", startHour: 9 },
+  { value: "11 AM - 01 PM", startHour: 11 },
+  { value: "01 PM - 03 PM", startHour: 13 },
+  { value: "03 PM - 05 PM", startHour: 15 },
+  { value: "05 PM - 07 PM", startHour: 17 },
+  { value: "07 PM - 09 PM", startHour: 19 },
+];
+
+const getToday = () => {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${mm}-${dd}`;
+};
+
+// Agar booking date aaj ki hai, to jo slot start ho chuka hai wo disabled
+const isSlotPast = (slot, date) => {
+  if (!date || date !== getToday()) return false;
+  return slot.startHour <= new Date().getHours();
+};
+
 const blank = {
   customerName: "",
   customerNumber: "",
@@ -156,6 +179,16 @@ export default function BookingForm() {
     setErrors((p) => ({ ...p, [k]: undefined }));
   };
 
+  // Date change hone par agar selected slot ab past ho gaya to clear kar do
+  const handleDateChange = (date) => {
+    setForm((p) => {
+      const slot = TIME_SLOTS.find((t) => t.value === p.bookingTime);
+      const clearTime = slot && isSlotPast(slot, date);
+      return { ...p, bookingDate: date, bookingTime: clearTime ? "" : p.bookingTime };
+    });
+    setErrors((p) => ({ ...p, bookingDate: undefined }));
+  };
+
   const toggleAddon = (id) =>
     setForm((p) => ({
       ...p,
@@ -228,7 +261,7 @@ export default function BookingForm() {
     if (form.addressType === "current_location" && !form.latitude)       e.location       = "Please capture your location first";
     if (!form.carTypeId)                                                 e.carTypeId      = "Please select your car type";
     if (!form.bookingDate)                                               e.bookingDate    = "Please select a date";
-    if (!form.bookingTime)                                               e.bookingTime    = "Please select a time";
+    if (!form.bookingTime)                                               e.bookingTime    = "Please select a time slot";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -275,7 +308,7 @@ export default function BookingForm() {
     }
   };
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = getToday();
   const sec1Done = !!(form.customerName && form.customerNumber);
   const sec2Done = !!(form.cityId && (form.addressType === "full_address" ? form.fullAddress : form.latitude));
   const sec3Done = !!form.carTypeId;
@@ -558,33 +591,42 @@ export default function BookingForm() {
               {/* SECTION 4 — Date & Time */}
               <SectionHead icon={Calendar} title="Date & Time" done={sec4Done} />
 
-              <div style={s.row}>
-                <Field label="Booking Date" required error={errors.bookingDate}>
-                  <div style={s.inputWrap}>
-                    <Calendar size={15} color="#9ca3af" style={s.inputIcon} />
-                    <input
-                      className={`bkf-input${errors.bookingDate ? " err" : ""}`}
-                      style={s.inputWithIcon}
-                      type="date"
-                      min={today}
-                      value={form.bookingDate}
-                      onChange={(e) => set("bookingDate", e.target.value)}
-                    />
-                  </div>
-                </Field>
-                <Field label="Preferred Time" required error={errors.bookingTime}>
-                  <div style={s.inputWrap}>
-                    <Clock size={15} color="#9ca3af" style={s.inputIcon} />
-                    <input
-                      className={`bkf-input${errors.bookingTime ? " err" : ""}`}
-                      style={s.inputWithIcon}
-                      type="time"
-                      value={form.bookingTime}
-                      onChange={(e) => set("bookingTime", e.target.value)}
-                    />
-                  </div>
-                </Field>
-              </div>
+              <Field label="Booking Date" required error={errors.bookingDate}>
+                <div style={s.inputWrap}>
+                  <Calendar size={15} color="#9ca3af" style={s.inputIcon} />
+                  <input
+                    className={`bkf-input${errors.bookingDate ? " err" : ""}`}
+                    style={s.inputWithIcon}
+                    type="date"
+                    min={today}
+                    value={form.bookingDate}
+                    onChange={(e) => handleDateChange(e.target.value)}
+                  />
+                </div>
+              </Field>
+
+              <Field label="Preferred Time" required error={errors.bookingTime}>
+                <div style={s.slotGrid}>
+                  {TIME_SLOTS.map((slot) => {
+                    const past = isSlotPast(slot, form.bookingDate);
+                    const active = form.bookingTime === slot.value;
+                    return (
+                      <button
+                        key={slot.value}
+                        type="button"
+                        disabled={past}
+                        className={`slot-pill${active ? " active" : ""}${errors.bookingTime ? " err" : ""}`}
+                        onClick={() => set("bookingTime", slot.value)}
+                      >
+                        {slot.value}
+                      </button>
+                    );
+                  })}
+                </div>
+                {form.bookingDate === today && (
+                  <span style={s.hint}>Aaj ke liye jo slots nikal chuke hain wo disabled hain.</span>
+                )}
+              </Field>
 
               <div style={s.divider} />
 
@@ -726,6 +768,15 @@ export default function BookingForm() {
                   </div>
                 )}
 
+                {form.bookingTime && (
+                  <div style={s.summaryRow}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <Clock size={13} color="#6b7280" /> {form.bookingTime}
+                    </span>
+                    <span style={{ color: "#6b7280" }}>—</span>
+                  </div>
+                )}
+
                 {selectedAddons.map((a) => (
                   <div key={a.id} style={{ ...s.summaryRow, color: "#6b7280" }}>
                     <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -813,7 +864,7 @@ const s = {
   label: { fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 7, display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" },
   req: { color: "#d1372c", fontWeight: 700 },
   opt: { fontWeight: 400, color: "#9ca3af", fontSize: 12 },
-  hint: { fontSize: 11, color: "#9ca3af", marginTop: 4 },
+  hint: { fontSize: 11, color: "#9ca3af", marginTop: 6 },
   errMsg: { display: "flex", alignItems: "center", gap: 4, color: "#d1372c", fontSize: 12, fontWeight: 500, marginTop: 5 },
 
   inputWrap: { display: "flex", alignItems: "center", position: "relative" },
@@ -821,6 +872,9 @@ const s = {
   inputWithIcon: { paddingLeft: 36 },
   prefix: { background: "#f4f6fb", color: "#374151", fontSize: 13, fontWeight: 700, padding: "11px 10px 11px 13px", borderTopLeftRadius: 10, borderBottomLeftRadius: 10, borderTopRightRadius: 0, borderBottomRightRadius: 0, flexShrink: 0, borderWidth: "1.5px", borderStyle: "solid", borderColor: "#d1d9e6", borderRightWidth: "1px" },
   inputPrefixed: { borderRadius: "0 10px 10px 0", borderLeft: "none" },
+
+  // Time slot grid
+  slotGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 },
 
   selectWrap: { position: "relative", display: "flex", alignItems: "center" },
   select: { paddingLeft: 36, paddingRight: 32, appearance: "none", cursor: "pointer", width: "100%" },
@@ -845,7 +899,6 @@ const s = {
   locOpen: { fontSize: 11, fontWeight: 600, color: navy, textDecoration: "none" },
   locClear: { width: 28, height: 28, borderRadius: "50%", borderWidth: "1.5px", borderStyle: "solid", borderColor: "#e5e7eb", background: "#f9fafb", color: "#6b7280", fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
 
-  // ── KEY FIX: shorthand `border` → longhand properties ──
   addonTrigger: {
     width: "100%",
     display: "flex",
@@ -960,6 +1013,41 @@ const cssRaw = `
     box-shadow: none;
   }
 
+  /* ── Time slot pills ── */
+  .slot-pill {
+    padding: 12px 10px;
+    border-radius: 999px;
+    border: 1.5px solid #e5e7eb;
+    background: #fff;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    white-space: nowrap;
+    transition: all .15s;
+  }
+  .slot-pill:hover:not(:disabled):not(.active) {
+    border-color: #1a3c8f;
+    color: #1a3c8f;
+    background: #f7f9ff;
+  }
+  .slot-pill.active {
+    background: #1a3c8f;
+    border-color: #1a3c8f;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(26,60,143,0.25);
+  }
+  .slot-pill.err:not(.active) { border-color: #d1372c; }
+  .slot-pill:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #f4f6fb;
+    text-decoration: line-through;
+  }
+
   .addr-tab {
     flex: 1; padding: 10px 12px;
     border-radius: 10px; border: 1.5px solid #d1d9e6;
@@ -1006,5 +1094,6 @@ const cssRaw = `
   @media (max-width: 480px) {
     .bkf-row { grid-template-columns: 1fr !important; }
     .addr-tab { font-size: 12px; padding: 9px 8px; }
+    .slot-pill { font-size: 12.5px; padding: 11px 6px; }
   }
 `;
