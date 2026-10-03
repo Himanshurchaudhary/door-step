@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import GaadiGlowBanner from "../../Components/User/Banner";
 import Packages from "../../Components/User/Packages";
 import WhyChooseUs from "./WhyChooseUs";
-import About from "./About";
+import AboutHome from "../User/Abouthome";
 import HowItWorks from "./Howitworks";
 
 const SITE = "https://doorsstep.in";
@@ -42,7 +42,7 @@ export default function Home() {
       <GaadiGlowBanner />
       <Packages />
       <WhyChooseUs />
-      <About />
+      <AboutHome />
       <HowItWorks />
     </>
   );
