@@ -72,19 +72,19 @@ const AppLayout = ({ children }) => {
 // App Entry Point
 // ─────────────────────────────────────────────
 function App() {
-  // return (
-    // <AppLayout>
-    //   <Routes>
-    //     {/* Public Routes */}
-    //     <Route path="/" element={<Home />} />
-    //     <Route path="/book" element={<BookingForm />} />
-    //     <Route path="/packages" element={<Packages />} />
-    //     <Route path="/about" element={<About />} />
-    //     <Route path="/term" element={<TermsAndConditions />} />
-    //     <Route path="/privacy" element={<PrivacyPolicy />} />
-    //     <Route path="/contact" element={<ContactPage />} />
-    //     <Route path="/car-wash-in-ahmedabad" element={<CarWashAhmedabad />} />
-    //     <Route path="/car-wash-in-gandhinagar" element={<CarWashGandhinagar />} />
+  return (
+    <AppLayout>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/book" element={<BookingForm />} />
+        <Route path="/packages" element={<Packages />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/term" element={<TermsAndConditions />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/car-wash-in-ahmedabad" element={<CarWashAhmedabad />} />
+        <Route path="/car-wash-in-gandhinagar" element={<CarWashGandhinagar />} />
 
 
 
@@ -96,43 +96,43 @@ function App() {
 
 
 
-    //     <Route path="/admin/login" element={<Adminlogin />} />
+        <Route path="/admin/login" element={<Adminlogin />} />
 
-    //     {/* Admin Protected Routes */}
-    //     <Route
-    //       path="/admin/*"
-    //       element={
-    //         <AdminProtectedRoute>
-    //           <AdminLayout />
-    //         </AdminProtectedRoute>
-    //       }
-    //     />
+        {/* Admin Protected Routes */}
+        <Route
+          path="/admin/*"
+          element={
+            <AdminProtectedRoute>
+              <AdminLayout />
+            </AdminProtectedRoute>
+          }
+        />
 
-    //     {/* User Protected Routes */}
-    //     <Route path="/user/portal" element={<CustomerPortal />} />
-    //     <Route path="/partner/portal" element={<PartnerDashboard />} />
+        {/* User Protected Routes */}
+        <Route path="/user/portal" element={<CustomerPortal />} />
+        <Route path="/partner/portal" element={<PartnerDashboard />} />
 
-    //     {/* <Route
-    //       path="/user/*"
-    //       element={
-    //         <UserProtectedRoute>
-    //           <UserLayout />
-    //         </UserProtectedRoute>
-    //       }
-    //     /> */}
+        {/* <Route
+          path="/user/*"
+          element={
+            <UserProtectedRoute>
+              <UserLayout />
+            </UserProtectedRoute>
+          }
+        /> */}
 
-    //     {/* 404 Fallback */}
-    //     <Route
-    //       path="*"
-    //       element={
-    //         <div className="flex items-center justify-center h-screen font-bold text-2xl text-slate-400">
-    //           404 - Page Not Found
-    //         </div>
-    //       }
-    //     />
-    //   </Routes>
-    // </AppLayout>
-  // );
+        {/* 404 Fallback */}
+        <Route
+          path="*"
+          element={
+            <div className="flex items-center justify-center h-screen font-bold text-2xl text-slate-400">
+              404 - Page Not Found
+            </div>
+          }
+        />
+      </Routes>
+    </AppLayout>
+  );
 }
 
 export default App;
